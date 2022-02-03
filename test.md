@@ -1,8 +1,6 @@
-# test
+[_首页_](./index.md)
 
-***hello world***
+## test
 
-### color mark
-
-<font color=#FF0000>hello world</font>
+hello world
 

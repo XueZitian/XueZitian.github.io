@@ -1,3 +1,1 @@
-# Xue Zitian Blog
-
-[test](./test.md)
+1. [test](./test.md)
