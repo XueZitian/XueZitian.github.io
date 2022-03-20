@@ -90,11 +90,62 @@ JTAG需要借助硬件调试工具，像Jlink, trace32, DS5等；Core Dumps适�
 
 ### 使用qemu的GDB调试linux kernel
 
-网上有一篇非常好的教程讲解了如何使用qemu的GDB调试linux kernel，而且还配置有视频
-教程，非常nice，所以请直接移步去这位大牛的文章：[Debugging the Linux kernel with
+网上有一篇非常好的教程讲解了如何使用qemu的GDB调试linux kernel，而且还配有视频
+教程，非常nice，所以请直接移步到这位大牛的文章：[Debugging the Linux kernel with
 Qemu and GDB][4]。
 
-TODO: 添加ubuntu文件系统作为调试的系统
+上面这篇文章只介绍到了使用initrd作为linux的根文件系统的调试环境。那么如果我们想
+完整的运行ubuntu系统，只需要在linux boot的时候告诉kernel，ubuntu的根文件系统在那
+个设备节点，并在这个设备节点安装好ubuntu文件系统，就可以顺利的从initrd转移到
+ubuntu系统了。具体的操作步骤如下：
+1. 安装ubuntu虚拟机，和正常安装ubuntu虚拟机的流程一样
+```bash
+qemu-img create -f qcow2 ubuntu.qcow 20G
+qemu-system-x86_64 -m 4096 \
+	boot d \
+	cdrom ubuntu-20.04.4-live-server-amd64.iso \
+	drive file=ubuntu.qcow,format=qcow2
+```
+2. 查看安装的ubuntu虚拟机的根文件系统节点
+```bash
+# 运行如下命令启动虚拟机
+qemu-system-x86_64 -m 4096 \
+	-smp 4 \
+	-drive  file=ubuntu.qcow,format=qcow2
+# 在虚拟机中查看根设备节点, 即挂载在 '/' 目录的设备节点
+Guest_CMD> df
+Filesystem 1K-blocks Used Available Use% Mounted on
+/dev/sda2         xx   xx        xx   xx          /
+```
+3. 使用qemu '-kernel' 参数指定的内核作为虚拟机内核，并通过 '-append root=xxx' 指
+定linux的根文件系统，'xxx'就是第二步获得的根文件系统设备节点。
+```bash
+qemu-system-x86_64 -m 4096 \
+	smp 4 \
+	enable-kvm \
+	kernel path/to/build/arch/x86_64/boot/bzImage \
+	drive file=ubuntu.qcow,format=qcow2 \
+	s -S \
+	nographic \
+	append "console=ttyS0 root=/dev/sda2 nokaslr"
+```
+4. 接下来就可以在host上开启GDB调试了
+```bash
+ gdb vmlinux
+ GDB_CMD> target remote :1234
+ GDB_CMD> lk-module
+```
+
+如果你对比第二步和第三步中的linux kernel版本，会发现他们不一样，这是因为第二步中
+的linux kernel来自于第一步安装的ubuntu文件系统，而第三步的linux kernel来自我们
+通过 '-kernel' 参数指定的kernel。当qemu没有使用 '-kernel' 参数时，qemu完整的模拟
+了x86系统启动的完整流程：BOIS -> grub -> linux kernel -> initrd -> ubuntu文件系
+统；而当qemu指定'-kernel' 参数时，qemu启动虚拟机的流程变为：linux kernel ->
+ubuntu文件系统(initrd是否会参与，有待进一步分析，我不是很确定)。另外，当我们使用
+'-kernel' 指定的kernel版本和ubuntu文件系统中kernel版本不一致时，按理ubuntu文件系
+统的linux module在加载的时候可能会出错，因为它和正在运行的kernel版本并不一致。
+Interesting ... 关于这一块涉及到的知识点很多：BOIS, grub, initrd和ubuntu文件系统
+等等，这些我需要再理一理。
 
 ### Reference
 * [Breakpoint Handling][1]
