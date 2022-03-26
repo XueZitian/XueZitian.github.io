@@ -102,9 +102,9 @@ ubuntu系统了。具体的操作步骤如下：
 ```bash
 qemu-img create -f qcow2 ubuntu.qcow 20G
 qemu-system-x86_64 -m 4096 \
-	boot d \
-	cdrom ubuntu-20.04.4-live-server-amd64.iso \
-	drive file=ubuntu.qcow,format=qcow2
+	-boot d \
+	-cdrom ubuntu-20.04.4-live-server-amd64.iso \
+	-drive file=ubuntu.qcow,format=qcow2
 ```
 2. 查看安装的ubuntu虚拟机的根文件系统节点
 ```bash
@@ -121,13 +121,13 @@ Filesystem 1K-blocks Used Available Use% Mounted on
 定linux的根文件系统，'xxx'就是第二步获得的根文件系统设备节点。
 ```bash
 qemu-system-x86_64 -m 4096 \
-	smp 4 \
-	enable-kvm \
-	kernel path/to/build/arch/x86_64/boot/bzImage \
-	drive file=ubuntu.qcow,format=qcow2 \
-	s -S \
-	nographic \
-	append "console=ttyS0 root=/dev/sda2 nokaslr"
+	-smp 4 \
+	-enable-kvm \
+	-kernel path/to/build/arch/x86_64/boot/bzImage \
+	-drive file=ubuntu.qcow,format=qcow2 \
+	-s -S \
+	-nographic \
+	-append "console=ttyS0 root=/dev/sda2 nokaslr"
 ```
 4. 接下来就可以在host上开启GDB调试了
 ```bash
