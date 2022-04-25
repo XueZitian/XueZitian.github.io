@@ -5,8 +5,8 @@ title: 使用qemu gdb stub调试linux kernel
 
 ### GDB原理
 
-工欲善其事，必先利其器。GDB作为一个强大的调试工具，对于我们debug和analysis
-代码非常有用，为了充分使用GDB的功能，有必要了解其背后的原理。
+工欲善其事，必先利其器。GDB作为一个强大的调试工具，对于我们debug和分析代码非常有
+用，为了充分使用GDB的功能，有必要了解其背后的原理。
 
 GDB功能强大，涉及诸多技术领域。我们以最常用的breakpoint为例，看看GDB如何实现
 breakpoint的功能。关于GDB的详细使用方法和原理，官网提供了非常详细的文档：
@@ -14,19 +14,19 @@ breakpoint的功能。关于GDB的详细使用方法和原理，官网提供了�
 
 breakpoint的实现方法有两种：hardware和software。
 
-hardware breakpoint一般需要soc在硬件层面提供支持，比如soc提供了一个专用的
-register用来存储breakpoint address，当PC(program counter register)等于breakpoint
-register的值，cpu就会触发一个exception，并报给GDB。另外，硬件层面的debug可以
-实现一些更强大的功能，像data watchpoint(当一个地址发生读写操作时，可以产生
-exception，很适合用来定位踩内存的问题)，以及非侵入式的debug(trace pc addresss or
-data value等，很适合用来分析performance)。不过这些debug功能一般需要借助昂贵的
-调试工具，像trace32，DS5。有兴趣的可以去详细看看arm的coresight debug框架。
+hardware breakpoint一般需要soc在硬件层面提供支持，比如soc提供一个特殊register来
+存储breakpoint address，当PC指针等于这个特殊register的值，cpu就会触发一个exception，
+并报给GDB。另外，硬件层面的debug可以实现一些更强大的功能，比如：data watchpoint，
+当一个地址发生读写操作时，可以产生exception，很适合用来定位踩内存的问题；非侵入
+式的debug(trace pc addresss or data value等)，很适合用来分析performance。不过这
+些debug功能一般需要借助昂贵的调试工具，像trace32，DS5。关于硬件层面支持的debug，
+不同的架构技术手段不太一样，像arm是一套coresight debug框架。
 
-software breakpoint的原理是：当我们设置一个breakpoint时，GDB将会使用一个非法或者
-breakpoint专用指令替换断点位置的指令，它将引起一个exception，这样当程序执行到这
-个位置，GDB就可以借助exception去停止程序。当用户想要继续执行程序时，首先GDB会恢
-复原来的指令，然后继续执行。因此，被调试程序所在的内存必须是可写的，不能存放在
-ROM中，像linux kernel的kprobe技术的实现原理与software breakpoint类似。
+software breakpoint的原理是：当我们设置一个breakpoint时，GDB将会使用一个非法指令
+（或breakpoint专用指令）替换断点位置的指令，使cpu产生一个exception，这样当程序执
+行到这个位置，GDB就可以借助exception去停止程序。当用户想要继续执行程序时，GDB首
+先会恢复原来的指令，然后继续执行。因此，被调试程序所在的内存必须是可写的，不能存
+放在ROM中，像linux kernel的kprobe技术的实现原理与software breakpoint类似。
 
 ### GDB常用命令
 
@@ -107,8 +107,8 @@ Qemu and GDB][4]。
 
 上面这篇文章只介绍到了使用initrd作为linux的根文件系统的调试环境。那么如果我们想
 完整的运行ubuntu系统，只需要在linux boot的时候告诉kernel，ubuntu的根文件系统在那
-个设备节点，并在这个设备节点安装好ubuntu文件系统，就可以顺利的从initrd转移到
-ubuntu系统了。具体的操作步骤如下：
+个设备节点，并在这个设备节点安装好ubuntu文件系统，就可以顺利的从initrd转移到ubuntu系
+统了。具体的操作步骤如下：
 1. 安装ubuntu虚拟机，和正常安装ubuntu虚拟机的流程一样
 ```bash
 qemu-img create -f qcow2 ubuntu.qcow 20G
@@ -149,22 +149,21 @@ qemu-system-x86_64 -m 4096 \
 
 如果你对比第二步和第三步中的linux kernel版本，会发现他们不一样，这是因为第二步中
 的linux kernel来自于第一步安装的ubuntu文件系统，而第三步的linux kernel来自我们
-通过 '-kernel' 参数指定的kernel。当qemu没有使用 '-kernel' 参数时，qemu完整的模拟
+通过"-kernel"参数指定的kernel。当qemu没有使用"-kernel"参数时，qemu完整的模拟
 了x86系统启动的完整流程：BIOS -> grub -> linux kernel -> initrd -> ubuntu文件系
-统；而当qemu指定'-kernel' 参数时，qemu启动虚拟机的流程变为：linux kernel ->
-ubuntu文件系统(BIOS如何boot linux有待进一步分析)。另外，当我们使用'-kernel' 指定
-的kernel版本和ubuntu文件系统中kernel版本不一致时，按理ubuntu文件系统的linux
-module在加载的时候可能会出错，因为它和正在运行的kernel版本并不一致。
-Interesting... 关于这一块涉及到的知识点很多：BOIS, grub, initrd和ubuntu文件系统
-等等，这些我需要再理一理。
+统；而当qemu指定"-kernel"参数时，qemu启动虚拟机的流程变为：BIOS -> linux kernel
+-> ubuntu文件系统(关于BIOS如何boot linux：[基于x86-q35虚拟机分析qemu创建虚拟机运
+行环境的流程][8]中的x86_load_linux()函数给出了解释)。另外，当我们使用"-kernel"指定
+的kernel版本和ubuntu文件系统中kernel版本不一致时，按理ubuntu文件系统的linux module在
+加载的时候可能会出错，因为它和正在运行的kernel版本并不一致。Interesting...
 
-最近发现上面的方法，在x86架构最新的q35虚拟机上会出现无法进入ubuntu文件系统。通过
-kernel log可以看到kernel在进入根文件系统之前并没有挂载磁盘设备，导致找不到设备节
-点'/dev/sda2'，也就进不去ubuntu文件系统，可能是q35的设备初始化顺序变化导致，有
-待进一步分析根本原因。为了能基于q35虚拟机调试ubuntu，我又找到了一种方法：启动虚
-拟机的时候不通过'-kernel'参数指定linux kernel，而是在虚拟中自己构建一版kernel，
-安装该kernel，并把源码和编译生成的文件拷贝到host的相同目录下，再使用第四步的方法
-同样可以调试linux kenel。
+上面的方法在x86架构最新的q35虚拟机上会出现无法进入ubuntu文件系统的问题。
+通过kernel log可以看到kernel在进入根文件系统之前并没有挂载磁盘设备，导致找不到设
+备节点'/dev/sda2'，也就进不去ubuntu文件系统，可能是q35的设备初始化顺序变化导致启
+动根文件系统之前没有初始化磁盘设备，有待进一步分析根本原因。为了能基于q35虚拟机
+调试ubuntu，我又找到了一种方法：启动虚拟机的时候不通过'-kernel'参数指定linux kernel，
+而是在虚拟中自己构建一版kernel，安装该kernel，并把源码和编译生成的文件拷贝到host的
+相同目录下，再使用第四步的方法同样可以调试linux kenel。
 
 ### Reference
 * [Breakpoint Handling][1]
@@ -179,3 +178,4 @@ kernel log可以看到kernel在进入根文件系统之前并没有挂载磁盘�
 [5]: https://docs.kernel.org/dev-tools/gdb-kernel-debugging.html
 [6]: https://qemu.readthedocs.io/en/latest/system/gdb.html
 [7]: https://terenceli.github.io/%E6%8A%80%E6%9C%AF/2016/06/21/gdb-linux-kernel-by-qemu
+[8]: https://xuezitian.github.io/2022/04/16/qemu-run-x86-q35-tcg.html
