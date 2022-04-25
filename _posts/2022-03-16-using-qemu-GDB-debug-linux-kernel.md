@@ -1,5 +1,6 @@
 ---
 layout: post
+title: 使用qemu gdb stub调试linux kernel
 ---
 
 ### GDB原理
@@ -22,11 +23,10 @@ data value等，很适合用来分析performance)。不过这些debug功能一�
 调试工具，像trace32，DS5。有兴趣的可以去详细看看arm的coresight debug框架。
 
 software breakpoint的原理是：当我们设置一个breakpoint时，GDB将会使用一个非法或者
-breakpoint专用instruction替换断点位置的instruction，它将引起一个exception，这样
-当program执行到这个位置，GDB就可以借助exception去停止program。当用户想要继续执行
-program时，首先GDB会恢复原来的instruction，然后继续执行。因此，被调试程序所在的
-内存必须是可写的，不能存放在ROM中，像linux kernel的kprobe技术的实现原理与
-software breakpoint类似。
+breakpoint专用指令替换断点位置的指令，它将引起一个exception，这样当程序执行到这
+个位置，GDB就可以借助exception去停止程序。当用户想要继续执行程序时，首先GDB会恢
+复原来的指令，然后继续执行。因此，被调试程序所在的内存必须是可写的，不能存放在
+ROM中，像linux kernel的kprobe技术的实现原理与software breakpoint类似。
 
 ### GDB常用命令
 
