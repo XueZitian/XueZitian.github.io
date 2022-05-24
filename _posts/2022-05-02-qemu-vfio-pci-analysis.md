@@ -85,7 +85,21 @@ vfio_region_mmap()
 
 **4)IOMMU配置**
 
-TODO
+当我们把一个VF或PF pass-through给虚拟机时，相应的需要为这个VF或PF设备配置IOMMU的页表，使其可以使用GPA来访问虚拟机所对应的物理内存，此时IOMMU负责将GPA转换成HPA，并限制设备可访问的内存区域，从而设备可以正确的访问CPU内存，并确保host及其它虚拟机的安全性。Qemu中的VFIO设备会向虚拟机的内存地址空间注册配置IOMMU的memory_listener，从而可以同步cpu内存虚拟化的映射，即GPA->HPA。Qemu中相关函数如下：
+
+```
+// register memory_listener
+vfio_connect_container()
+|---memory_listener_register()
+// memory_listener functions
+vfio_memory_listener = {
+    .region_add = vfio_listener_region_add,
+    .region_del = vfio_listener_region_del,
+    .log_global_start = vfio_listener_log_global_start,
+    .log_global_stop = vfio_listener_log_global_stop,
+    .log_sync = vfio_listener_log_sync,
+}
+```
 
 ## Reference
 1. [An Introduction to PCI Device Assignment with VFIO][1]
