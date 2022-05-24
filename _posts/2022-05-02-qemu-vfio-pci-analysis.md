@@ -108,7 +108,7 @@ SRIOV(Single Root I/O Virtualizaton)，是PCIe规范中中定义的一个Capabil
 高对硬件设备的利用率，主要用于虚拟化场景下。该规范引入了一个很重要的概念：VF
 (Virtual Function)，每个PF可以包含多个VF，每个VF同PF一样，具有自己的配置空间，BAR
 Region，MSI/MSIX中断，BDF等等。这样可以比较容易的基于SRIOV规范设计出支持硬件虚拟
-化的设备，如果一张显卡支持4个VF，4个VF分别pass-through给不同的虚拟机，这样多个虚
+化的设备，如一张显卡支持4个VF，4个VF分别pass-through给不同的虚拟机，这样多个虚
 拟机可以共享一个物理显卡，当然直接把显卡的PF pass-through给虚拟机也是可以的。VFIO
 的PCIe部分就是以VF和PF为粒度来封装PCIe设备，然后提供给用户态使用。
 
@@ -119,7 +119,7 @@ Region，MSI/MSIX中断，BDF等等。这样可以比较容易的基于SRIOV规�
 VFIO将设备暴露给用户态时，解决了一个最重要的问题，基于IOMMU限制设备的I/O访问，中
 断和DMA能力，确保了安全性。为了保证安全性，VFIO定义了三个概念：device，group，
 container。安全隔离的最小粒度是group，属于同一个group的设备必须分配给同一个虚拟
-机，container包含了分配给某个虚拟机的所有涉笔。可以通过打开"/dev/vfio/vfio"字符
+机，container包含了分配给某个虚拟机的所有设备。可以通过打开"/dev/vfio/vfio"字符
 节点创建一个container；如果我们想添加一个设备到该container，首先需要找到该设备所
 属的group，然后卸载该group下所有设备的驱动，再绑定VFIO驱动，这时候就可以看到
 group的设备节点"/dev/vfio/$GROUP"，接下来就可以将这个group添加到container中，同

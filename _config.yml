@@ -1,22 +1,22 @@
-title: XueZitian # name of the site
-author: xuezitian # name of site's author
-email: zitianxue@outlook.com # email of site's author
-url: https://XueZitian.github.io # root address of the site
-baseurl: "" # subpath of the site, e.g. "/blog" (leave it blank "" if you're site shouldn't use a subpath)
-description: # description of the site (multiple lines allowed)
+title: XueZitian
+author: xuezitian
+email: zitianxue@outlook.com
+url: https://XueZitian.github.io
+baseurl: ""
+description:
 
-#permalink: /:slug.html
-
-# goat_counter: "yoursitename" # put your GoatCounter name if you want to use GoatCounter analytics
+markdown: kramdown
+kramdown:
+    input: GFM
+    syntax_highlighter: rouge
+highlighter: rouge
+permalink: pretty
 
 theme_config:
   appearance: "auto" # can be "light", "dark" or "auto"
   back_home_text: ".." # customize text for homepage link in post layout
   date_format: "%Y-%m-%d" # customize how date is formatted
   show_description: false # show blog description in home page
-
-sass:
-  style: :compressed
 
 plugins:
   - jekyll-feed
