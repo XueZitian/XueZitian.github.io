@@ -41,8 +41,7 @@ ww_mutex有两种死锁处理方法：
     如果持有锁的transaction更年轻，那么尝试获取锁的transaction伤害持有锁的transaction，请求持有锁的transaction释放锁，并停止transaction；  
     如果持有锁的transaction更老，那么尝试获取锁的transaction等待。
 
-相较wait-die，wound-wait方法有更少的回退发生，但是恢复回退时，wound-wait需要做更多的工作。Wound-wait是一个抢占算法(一个transaction被另一个transaction伤害)，它需要一个可靠的方式去提取伤害条件和抢占正在运行的transaction。需要注意的是，这里的抢占和进程抢占不同。一次transaction的抢占是一个transaction被伤害后并直接结束。
-结束（die）
+相较wait-die，wound-wait方法有更少的回退发生，但是恢复回退时，wound-wait需要做更多的工作。
 
 获取锁有两个函数：
 1. ww_mutex_lock():

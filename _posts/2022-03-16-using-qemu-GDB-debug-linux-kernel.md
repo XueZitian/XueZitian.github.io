@@ -58,7 +58,9 @@ list
 # 查看内存中的数据
 examing /FMT addr
 # /FMT 格式
-/FMT: o(octal), x(hex), d(decimal), u(unsigned decimal), t(binary) f(float),a(address), i(instruction), c(char), s(string), b(byte), h(halfword), w(word),g(giant, 8 bytes)
+o(octal), x(hex), d(decimal), u(unsigned decimal), t(binary),
+f(float),a(address), i(instruction), c(char), s(string),
+b(byte), h(halfword), w(word),g(giant, 8 bytes)
 # 打印结构体成员，/0 显示偏移量
 ptype
 # 打开代码窗口
@@ -70,6 +72,10 @@ c-x a
 # 选择键盘控制的区域
 focus src
 focus cmd
+# 获取所有的macros/types/files/functions/variables
+info macros/types/files/functions/variables
+# 将输出存入log文件
+set logging on/off
 ```
 
 ### GDB调试linux kernel的几种方法
