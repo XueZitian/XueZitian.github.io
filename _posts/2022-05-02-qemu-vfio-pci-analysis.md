@@ -81,7 +81,7 @@ vfio_region_mmap()
 
 **3)MSIX Table**
 
-并不是所有的Bar Region都直接映射到虚拟机中，这里的一个例外就是MSIX Table，物理设备的MSIX Table是由VFIO控制的，qemu中会申请一段host内存，作为虚拟机的MSIX Table，这段内存会覆盖物理Bar中MSIX Table那部分的直接映射，这样虚拟机无法直接读写物理机的MSIX Table，qemu通过截获虚拟机对MSIX Table的读写操作，间接为虚拟机注册中断，并借助APIC虚拟化技术触发虚拟机中的中断。
+并不是所有的Bar Region都直接映射到虚拟机中，这里的一个例外就是MSIX Table，物理设备的MSIX Table是由VFIO控制的，qemu中会申请一段host内存，作为虚拟机的MSIX Table，这段内存会覆盖物理Bar中MSIX Table那部分的直接映射（由于CPU映射的粒度是页的size，一般是4KB，所以MSIX Table区域的起始地址和size需要4KB对齐），这样虚拟机无法直接读写物理机的MSIX Table，qemu通过截获虚拟机对MSIX Table的读写操作，间接为虚拟机注册中断，并借助APIC虚拟化技术触发虚拟机中的中断。
 
 **4)IOMMU配置**
 
