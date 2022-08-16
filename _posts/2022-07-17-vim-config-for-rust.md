@@ -11,7 +11,7 @@ rust.vim是rust官方提供的vim插件，提供了rust文件检测，语法高�
 
 错误检查：rust.vim基于vim的Syntastic，自动注册cargo作为语法检查器。（Syntastic是vim的语法检查器插件，目前已经不再维护，替代插件是ALE，这里我并没有安装Syntasitic插件，但是错误检查是可以工作的，这一部分有待进一步了解）
 
-概要预览：Tagbar是vim的一个插件，可以实现在侧边栏列出代码文件的中结构体，函数名和变量等，方便预览，其依赖Universal Ctags程序。rust.vim对Tagbar做了一些配置。
+概要预览：Tagbar是vim的一个插件，可以实现在侧边栏列出代码文件的中结构体，函数名和变量等，方便预览，其依赖**Universal Ctags**程序。rust.vim对Tagbar做了一些配置。
 
 代码格式化：`:RustFmt`命令可以借助rustfmt来格式化rust代码。rustfmt可以通过`rustup component add rustfmt`来安装。
 
@@ -37,12 +37,12 @@ mkdir -p ~/.local/bin
 curl -L https://github.com/rust-lang/rust-analyzer/releases/latest/download/rust-analyzer-x86_64-unknown-linux-gnu.gz | gunzip -c - > ~/.local/bin/rust-analyzer
 chmod +x ~/.local/bin/rust-analyzer
 ```
-2. 安装nodejs，版本>= 12.12
+2. 安装nodejs，版本>= 12.12。（需要切到root用户）
 ```
 curl -sL install-node.vercel.app/lts | bash
 ```
 3. 为vim安装rust.vim，Tagbar和coc.nvim插件  
-我使用的是vundle插件管理工具，在.vimrc添加如下插件，然后运行`:PluginInstall`
+我使用的是vundle插件管理工具，在.vimrc添加如下插件，然后运行`:PluginInstall`。（coc.nvim安装完后，再次开启vim，可能会出现这个错误：“[coc.nvim] build/index.js not found, please install dependencies and compile coc.nvim by: yarn install”。解决办法：1）sudo npm install -g yarn；2）cd ~/.vim/bundle/coc.nvim/；3）yarn install；4）yarn build）
 ```
 Plugin 'taglist.vim'
 Plugin 'rust-lang/rust.vim'
