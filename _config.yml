@@ -26,3 +26,7 @@ description: zitianxue@outlook.com
 remote_theme: pages-themes/leap-day@v0.2.0
 plugins:
 - jekyll-remote-theme # add this line to the plugins list if you already have one
+
+theme_config:
+  back_home_text: "首页" # customize text for homepage link in post layout
+  date_format: "%Y-%m-%d" # customize how date is formatted
