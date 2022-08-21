@@ -2,15 +2,15 @@
 # https://github.com/riggraz/no-style-please#customize-the-menu
 
 entries:
-  - title: all posts
-    post_list:
-      limit: 50
-      show_more: true
-      show_more_text: See archive...
-      show_more_url: archive.html
-  - title: rust language
+  - title: Rust Language
     post_list:
       category: rust
       show_more: true
       show_more_text: See more posts...
       show_more_url: rust-language-archive.html
+  - title: All Posts
+    post_list:
+      limit: 50
+      show_more: true
+      show_more_text: See archive...
+      show_more_url: archive.html
