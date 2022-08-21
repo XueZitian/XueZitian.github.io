@@ -4,6 +4,8 @@ title: rust的vim编辑器环境配置
 category: rust
 ---
 
+## 1 背景
+
 作为一个vim爱好者，之前基于global+cscope搭建了一套用于c程序的开发环境，其可以方便的完成定义或引用的跳转，并且具有不错的性能。最近开始学习rust程序，发现对于rust程序，这套环境不太好用，于是在网上搜索了一番，为rust搭建了这样一个vim环境：rust.vim + rust-analyzer + coc.nvim + coc-rust-analyzer。
 
 ### [rust.vim][3]
@@ -22,7 +24,6 @@ rust-analyzer是rust模块化编译器的前端，它的的核心是一个库，
 
 那么对于vim，与rust-analyzer建立LSP通信的插件是coc.nvim。
 
-
 ### [coc.nvim][5]
 
 coc.nvim是vim的一个插件，其提供了LSP功能支持，同时其本身也支持插件扩展，从而实现与不同语言的LSP服务器通信。对于rust，需要为coc.nvim安装coc-rust-analyzer插件。该插件依赖nodejs程序。
@@ -31,7 +32,8 @@ coc.nvim是vim的一个插件，其提供了LSP功能支持，同时其本身也
 
 coc-rust-analyzer作为coc.nvim的插件，是建立coc.vim与rust-analyzer通信的桥梁。其可以通过":CocInstall coc-rust-analyzer"安装，并通过":CocConfig"来配置。
 
-### 配置步骤如下：
+## 2 配置步骤
+
 1. 在linux上安装rust-analyzer
 ```bash
 mkdir -p ~/.local/bin
@@ -118,6 +120,7 @@ vnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(
 ```
 
 ## Reference
+
 1. [Configuring Vim for Rust development][1]
 2. [Rust：vim 环境配置][2]
 3. [rust.vim][3]
