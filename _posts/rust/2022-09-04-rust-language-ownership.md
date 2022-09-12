@@ -152,7 +152,7 @@ error: could not compile `ownership` due to previous error
 
 ### 1.8 仅栈数据：Copy
 
-还有一个我们没有讨论到的破绽，像整数这类变量，他们的赋值是否会发生所有权的转移和变量的无效？首先说答案，不会。下面是个例子：
+还有一个我们没有讨论到的破绽，像整数这类变量，他们的赋值是否会发生所有权的转移和变量的无效？首先答案是不会。下面是个例子：
 ```rust
     let x = 5;
     let y = x;
@@ -161,7 +161,83 @@ error: could not compile `ownership` due to previous error
 ```
 但是这段代码似乎与我们刚刚学到的相矛盾：我们没有调用 clone，但是 x 仍然有效并且没有被移动到 y 中。
 
-这是因为像整数这种类型在编译时是有已知的大小的，且整个存储在栈中，因此真实数据的拷贝是快速的。这意味着我们没有理由在创建y之后阻止x继续有效。换句话说，这里的深拷贝和浅拷贝没有区别，所有调用clone与通常的浅拷贝没有什么不同，所以可以省略ta。
+这是因为像整数这种类型在编译时是有已知的大小的，且整个存储在栈中，因此真实数据的拷贝是快速的。这意味着我们没有理由在创建y之后阻止x继续有效。换句话说，这里的深拷贝和浅拷贝没有区别，所有调用clone与通常的浅拷贝没有什么不同，所以可以省略它。
+
+Rust有一个称为Copy trait的特殊注解，我们可以将它放在存储在堆栈中的类型上。如果一个类型实现了Copy trait，那么它的变量不会移动，而是被简单地复制，因此它们在赋值给另一个变量后仍然有效。如果类型或其任何部分实现了Drop trait，Rust不允许该类型使用Copy trait。作为一般规则，所有的标量类型都可以实现Copy，另外不需要请求分配资源的也可以实现Copy。以下是一些实现 Copy 的类型：
+* 所有的整型
+* 布尔类型
+* 浮点类型
+* 字符类型
+* 元组类型，但包含成员都必须是实现了Copy trait的类型
+
+### 1.9 所有权和函数
+
+函数入参与变量赋值有着类似的所有权转移逻辑，比如，字符串变量发生所有权的转移，整型变量则是赋值，不会发生所有权转移，如下：
+```rust
+fn main() {
+    let s = String::from("hello");  // s comes into scope
+
+    takes_ownership(s);             // s's value moves into the function...
+                                    // ... and so is no longer valid here
+
+    let x = 5;                      // x comes into scope
+
+    makes_copy(x);                  // x would move into the function,
+                                    // but i32 is Copy, so it's okay to still
+                                    // use x afterward
+
+} // Here, x goes out of scope, then s. But because s's value was moved, nothing
+  // special happens.
+
+fn takes_ownership(some_string: String) { // some_string comes into scope
+    println!("{}", some_string);
+} // Here, some_string goes out of scope and `drop` is called. The backing
+  // memory is freed.
+
+fn makes_copy(some_integer: i32) { // some_integer comes into scope
+    println!("{}", some_integer);
+} // Here, some_integer goes out of scope. Nothing special happens.
+
+```
+
+同样，函数的返回值也可以将函数的所有权转移出去，如下：
+```rust
+fn main() {
+    let s1 = gives_ownership();         // gives_ownership moves its return
+                                        // value into s1
+
+    let s2 = String::from("hello");     // s2 comes into scope
+
+    let s3 = takes_and_gives_back(s2);  // s2 is moved into
+                                        // takes_and_gives_back, which also
+                                        // moves its return value into s3
+} // Here, s3 goes out of scope and is dropped. s2 was moved, so nothing
+  // happens. s1 goes out of scope and is dropped.
+
+fn gives_ownership() -> String {             // gives_ownership will move its
+                                             // return value into the function
+                                             // that calls it
+
+    let some_string = String::from("yours"); // some_string comes into scope
+
+    some_string                              // some_string is returned and
+                                             // moves out to the calling
+                                             // function
+}
+
+// This function takes a String and returns one
+fn takes_and_gives_back(a_string: String) -> String { // a_string comes into
+                                                      // scope
+
+    a_string  // a_string is returned and moves out to the calling function
+}
+```
+
+上面的例子可以看到，函数中定义的变量some_string，当函数退出时，这个变量的作用域已经结束，但我们通过返回值将这个变量的所有权转移给了外部的变量s1，从而some_string变量在堆中的内容不会被清理，即退出函数时，不会调用drop方法。
+
+## 引用
+
+所有权规则对于函数入参使用方式有着很大的约束，比如：如果一个变量，作为子函数的入参，将所有权转移给子函数后，变量就是失效了，这就导致如果我们想在子函数后面继续使用这个变量的话，需要让子函数将该变量的所有权在转移出来，这显然是不方便的。因此，引用是另外一种解决这个类问题的方法。
 
 
 
