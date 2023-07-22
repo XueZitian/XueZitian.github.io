@@ -37,9 +37,13 @@ mkdir -p ~/.local/bin
 curl -L https://github.com/rust-lang/rust-analyzer/releases/latest/download/rust-analyzer-x86_64-unknown-linux-gnu.gz | gunzip -c - > ~/.local/bin/rust-analyzer
 chmod +x ~/.local/bin/rust-analyzer
 ```
-2. 安装nodejs，版本>= 12.12。（需要切到root用户）
+2. 安装最新版 nodejs
 ```
-curl -sL install-node.vercel.app/lts | bash
+# 第一步 去 nodejs 官网 https://nodejs.org 看最新的版本号
+# 第二步 添加nodejs的源（13.x g改成最新的版本号）
+curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
+# 第三步 安装
+sudo apt-get install -y nodejs
 ```
 3. 为vim安装rust.vim，Tagbar和coc.nvim插件  
 我使用的是vundle插件管理工具，在.vimrc添加如下插件，然后运行`:PluginInstall`。（coc.nvim安装完后，再次开启vim，可能会出现这个错误：“[coc.nvim] build/index.js not found, please install dependencies and compile coc.nvim by: yarn install”。解决办法：1）sudo npm install -g yarn；2）cd ~/.vim/bundle/coc.nvim/；3）yarn install；4）yarn build）
